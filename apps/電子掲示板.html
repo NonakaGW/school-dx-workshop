@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src data:; font-src 'none'; connect-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'">
+  <title>桜丘高等学校｜教室用電子掲示板（研修デモ）</title>
+  <style>
+    :root{--navy:#17345c;--blue:#2675b6;--line:#e0e8f0;--muted:#647892;--bg:#eef3f9;--white:#fff;--amber:#ab6c0b;--red:#bc374a;--green:#187d77;--shadow:0 15px 42px rgba(28,56,87,.075)}
+    *{box-sizing:border-box}html,body{height:100%;margin:0}body{font-family:"Yu Gothic UI","Hiragino Kaku Gothic ProN","Meiryo",system-ui,sans-serif;background:var(--bg);color:var(--navy);-webkit-font-smoothing:antialiased}
+    button,input,textarea,select{font:inherit}button{cursor:pointer}button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-visible{outline:3px solid #69aeed;outline-offset:3px}
+    .app{min-height:100vh;max-width:1920px;margin:0 auto;padding:24px 28px 21px;display:flex;flex-direction:column;gap:17px}
+    .topbar{display:flex;justify-content:space-between;gap:24px;align-items:center;min-height:76px}
+    .identity{display:flex;align-items:center;gap:14px}.schoolmark{display:flex;align-items:center;justify-content:center;width:53px;height:53px;border-radius:17px;background:linear-gradient(145deg,#2c77b0,#204871);color:#fff;font-size:21px;font-weight:900;letter-spacing:-1px;box-shadow:0 7px 17px #1d4b7b25}
+    .schoollabel{font-size:12px;font-weight:700;color:#70819a;letter-spacing:.16em}.schoolname{font-size:clamp(20px,1.55vw,28px);font-weight:900;letter-spacing:.03em;line-height:1.45}
+    .topright{display:flex;align-items:center;gap:13px}.timebox{text-align:right;margin-right:8px}.datetime{font-weight:800;font-size:clamp(17px,1.25vw,22px);font-variant-numeric:tabular-nums}.timehint{font-size:11px;color:#8794a5;font-weight:700;margin-top:2px}
+    .button{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:1px solid #cfdeeb;border-radius:11px;background:#fff;padding:10px 15px;font-size:13px;font-weight:800;color:var(--navy);transition:background .15s,border .15s;white-space:nowrap}.button:hover{background:#f1f7ff;border-color:#a9c8e4}.button.primary{background:#226aab;color:#fff;border-color:#226aab}.button.primary:hover{background:#16598d}.button.silent{background:transparent;border-color:transparent}.button.danger{color:#a93243}.button.tiny{padding:6px 10px;font-size:12px;border-radius:8px}.button svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+    .layout{flex:1;display:grid;grid-template-columns:minmax(0,2.03fr) minmax(330px,1fr);gap:18px;min-height:0}
+    .panel{background:#fff;border-radius:19px;box-shadow:var(--shadow);border:1px solid #e2ebf2;min-width:0;overflow:hidden;display:flex;flex-direction:column}
+    .panelhead{min-height:97px;padding:22px 23px 16px;display:flex;justify-content:space-between;align-items:center;gap:15px;border-bottom:1px solid var(--line)}
+    .eyebrow{font-size:12px;letter-spacing:.14em;color:#647c96;font-weight:800;margin-bottom:4px}.paneltitle{font-size:clamp(22px,1.7vw,30px);font-weight:900;line-height:1.4}.paneldesc{font-size:12px;color:#768a9e;margin-top:5px}
+    .weeknav{display:flex;align-items:center;gap:7px}.weeklabel{font-size:clamp(11px,.9vw,14px);font-weight:800;white-space:nowrap;color:#4c6884;padding:0 3px}.iconbtn{height:34px;width:34px;border:1px solid #d9e6f0;background:#fff;color:#416684;border-radius:9px;font-size:20px;line-height:1;display:grid;place-items:center}.iconbtn:hover{background:#f0f6fb}
+    .tablebox{flex:1;min-height:0;padding:12px 15px 16px;display:flex;flex-direction:column}.schedule{width:100%;height:100%;border-collapse:separate;border-spacing:0;table-layout:fixed;overflow:hidden;border-radius:12px;border:1px solid #dfe7f0}
+    .schedule thead th{background:#f3f7fc;color:#44627f;font-weight:850;font-size:clamp(13px,1vw,17px);height:61px;border-bottom:1px solid #dce7f1;border-right:1px solid #e1eaf2}.schedule thead th:last-child{border-right:0}.schedule th.periodcol{width:81px;font-size:12px;color:#8598ac}.schedule th.todayhead{background:#e2effb;color:#176ba5;position:relative}.schedule th.todayhead:after{content:"";height:3px;background:#287db7;position:absolute;bottom:0;left:0;right:0}
+    .daydate{display:block;font-size:12px;margin-top:3px;color:#91a3b6;font-weight:700}.todayhead .daydate{color:#4a94c4}
+    .schedule tbody tr.lesson-row{height:calc((100% - 61px - 35px)/6)}.schedule tbody td,.schedule tbody th{border-right:1px solid #e2eaf2;border-bottom:1px solid #e2eaf2;vertical-align:middle}.schedule tbody tr:last-child td,.schedule tbody tr:last-child th{border-bottom:0}.schedule tbody td:last-child{border-right:0}
+    .period{background:#f8fafd;text-align:center}.periodno{font-size:clamp(15px,1.15vw,20px);font-weight:900}.periodtime{font-size:10px;font-weight:700;color:#90a1b2;margin-top:5px;line-height:1.4}.slot{padding:5px 7px;text-align:center;position:relative;background:#fff}.slot.today{background:#fafdff}.slot.current{box-shadow:inset 0 0 0 2px #5ea7dc;background:#f1f9ff}.slot-inner{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;min-height:66px}.subject{font-size:clamp(13px,1.12vw,20px);font-weight:850;line-height:1.25;word-break:keep-all;overflow-wrap:anywhere}.slotdetail{font-size:clamp(10px,.75vw,13px);color:#8194a6;line-height:1.35;min-height:13px}.chip{display:inline-flex;align-items:center;justify-content:center;border-radius:5px;padding:2px 8px;font-size:10px;letter-spacing:.025em;font-weight:900;line-height:1.5;white-space:nowrap}.chip.event{background:#d8f2ee;color:#147c70}.chip.change{background:#fff0d8;color:#b17413}.chip.cancel{background:#fce5e6;color:#af4250}
+    .slot.event{background:#effaf8}.slot.event .subject{color:#14766d}.slot.change{background:#fff9ed}.slot.change .subject{color:#ab6a09}.slot.cancel{background:#fff4f4}.slot.cancel .subject{color:#ba4e5a}.slot.event.today{background:#eaf8f5}
+    .lunch th,.lunch td{height:33px;background:#f3f7fb;color:#9baabd;font-size:11px;text-align:center;font-weight:800;border-bottom:1px solid var(--line);border-right:0;letter-spacing:.16em}
+    .ann-head{min-height:97px}.announce-count{font-size:12px;font-weight:850;color:#4f84a8;background:#edf5fc;padding:7px 10px;border-radius:30px;white-space:nowrap}.ann-body{padding:15px 17px 5px;display:flex;flex-direction:column;gap:12px;flex:1;overflow:auto;min-height:0}
+    .notice{border:1px solid #e4eaf0;background:#fff;border-radius:13px;padding:17px 17px 16px;border-left:5px solid #69a9d1;min-height:96px}.notice.urgent{border-left-color:#dc6e67;background:#fffafa}.notice.event{border-left-color:#36a394;background:#f8fdfc}.notice.change{border-left-color:#e0ac43;background:#fffdfa}.noticetop{display:flex;align-items:center;justify-content:space-between;gap:10px}.n-tag{font-size:11px;font-weight:900;border-radius:6px;padding:4px 8px;color:#3c78a3;background:#e9f3fa;white-space:nowrap}.urgent .n-tag{color:#c2514a;background:#fcebe8}.event .n-tag{color:#22897c;background:#e5f6f1}.change .n-tag{color:#ad750d;background:#fff1d7}.n-date{color:#8da0b0;font-size:11px;font-weight:750;text-align:right}
+    .notice-title{font-size:clamp(15px,1.15vw,20px);font-weight:900;margin:10px 0 6px;line-height:1.45;word-break:break-word}.notice-body{font-size:clamp(12px,.88vw,15px);line-height:1.55;color:#60768d;white-space:pre-wrap;word-break:break-word}.empty{padding:28px;text-align:center;color:#8c9db0}
+    .panel-foot{border-top:1px solid var(--line);margin-top:auto;padding:14px 19px;display:flex;align-items:center;justify-content:space-between;gap:12px;color:#8596a8;font-size:11px;font-weight:750;background:#fbfdff}
+    .legend{display:flex;gap:13px;align-items:center;flex-wrap:wrap}.leg{display:inline-flex;align-items:center;gap:5px}.dot{height:9px;width:9px;border-radius:3px;background:#b9c7d8}.dot.event{background:#3ea99b}.dot.change{background:#e7af50}.dot.cancel{background:#d67986}
+    .bottom{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:0 4px;font-size:11px;font-weight:650;color:#8799ac}.bottom strong{font-weight:850;color:#4d7798}
+    /* Teacher editing overlay */
+    dialog{border:0;border-radius:20px;padding:0;width:min(1050px,94vw);max-height:92vh;box-shadow:0 24px 100px rgba(14,40,70,.28);color:var(--navy)}dialog::backdrop{background:rgba(13,34,57,.58);backdrop-filter:blur(3px)}.dialoginner{display:flex;flex-direction:column;max-height:92vh}.dialoghead{padding:22px 28px 0;display:flex;justify-content:space-between;align-items:center}.dialogtitle{font-size:23px;font-weight:900}.dialogsub{font-size:12px;color:#7c91a6;margin-top:4px}.tabs{display:flex;gap:3px;border-bottom:1px solid #dfe8f1;padding:0 24px;margin-top:20px}.tab{border:0;border-bottom:3px solid transparent;background:transparent;color:#718aa1;font-size:14px;font-weight:850;padding:13px 17px}.tab.active{color:#126aaf;border-color:#2681bf}.dialogbody{padding:22px 28px 28px;overflow:auto}.editcols{display:grid;grid-template-columns:1.12fr .88fr;gap:25px}.sectionlabel{font-size:15px;font-weight:900;margin:0 0 12px}.mini-grid{display:grid;grid-template-columns:46px repeat(5,minmax(0,1fr));gap:5px}.mini-head{padding:9px 2px;text-align:center;font-weight:850;font-size:12px;color:#5f7b96;background:#eaf2f9;border-radius:5px}.mini-period{display:grid;place-items:center;font-weight:850;font-size:12px;color:#64829f;background:#f4f7fa;border-radius:6px}.mini-cell{border:1px solid #dce7ef;border-radius:6px;background:#fff;padding:8px 3px;min-height:52px;font-size:11px;font-weight:800;color:#325876;white-space:normal;word-break:break-all}.mini-cell.event{background:#e7f7f2;color:#1a877d}.mini-cell.change{background:#fff4de;color:#9e6f10}.mini-cell.cancel{background:#fff0f0;color:#b34b60}.mini-cell.selected{outline:3px solid #357eb8;outline-offset:0;border-color:transparent}
+    .formgroup{margin:0 0 13px}.formgroup label{display:block;font-size:12px;color:#627e97;font-weight:850;margin:0 0 6px}.formgroup input,.formgroup textarea,.formgroup select{background:#fff;border:1px solid #cfdeea;border-radius:9px;width:100%;font-size:14px;color:var(--navy);padding:11px 12px}.formgroup textarea{resize:vertical;min-height:95px}.formgrid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.actionbar{display:flex;justify-content:flex-end;align-items:center;gap:8px;margin-top:15px}.help{font-size:12px;color:#75899a;line-height:1.7;background:#f4f8fc;border-radius:10px;padding:12px 14px;margin-top:13px}.smalllist{display:flex;flex-direction:column;gap:9px}.smallnotice{display:flex;align-items:center;justify-content:space-between;gap:10px;border:1px solid #dce7ef;border-radius:10px;padding:10px 13px}.smallnotice strong{font-size:13px}.smallnotice small{display:block;color:#7c94a7;margin-top:3px}.noticecols{grid-template-columns:.9fr 1.1fr}.error{color:#bc374a;font-size:12px;font-weight:750;min-height:20px}.settingsrow{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:12px 0}.settingsrow label{font-size:13px;font-weight:750}.settingsrow select{width:220px;border:1px solid #cfdeea;border-radius:9px;padding:10px;color:var(--navy);background:#fff}.settings-box{padding:18px;border:1px solid #dce7ef;border-radius:11px;margin-bottom:15px}.settings-box h3{margin:0 0 12px;font-size:15px}.hidden{display:none!important}
+    @media(min-height:840px){.app{gap:20px;padding-top:30px;padding-bottom:23px}.schedule thead th{height:68px}.schedule tbody tr.lesson-row{height:calc((100% - 68px - 37px)/6)}.slot-inner{min-height:81px}.notice{padding:19px}.ann-body{gap:15px}}
+    @media(max-width:1100px){.app{padding:16px;gap:12px}.layout{grid-template-columns:minmax(0,1.9fr) minmax(285px,1fr);gap:12px}.topbar{min-height:65px}.schoolmark{width:45px;height:45px}.panelhead{padding:16px;min-height:85px}.tablebox{padding:8px}.schedule th.periodcol{width:63px}.notice{padding:12px}.ann-body{padding:10px}.weeklabel{font-size:11px}.weeknav{gap:2px}.weeknav .iconbtn{width:28px;height:28px}}
+    @media(max-width:780px){.app{height:auto;min-height:100vh}.topbar{flex-direction:column;align-items:stretch;gap:12px}.topright{justify-content:space-between}.layout{grid-template-columns:1fr}.panel{min-height:650px}.notice-panel{min-height:350px}.tablebox{min-height:510px}.schedule thead th{height:54px}.slot-inner{min-height:68px}.schedule tbody tr.lesson-row{height:76px}.panelhead{flex-wrap:wrap}.editcols{grid-template-columns:1fr}.bottom{flex-wrap:wrap}.dialogbody{padding:15px}.dialoghead{padding:18px 18px 0}.tabs{padding:0 12px}.tab{font-size:12px;padding:11px}}
+    @media(max-width:450px){.schoolname{font-size:19px}.schedule th.periodcol{width:45px}.periodtime{font-size:8px}.schedule thead th{font-size:11px}.daydate{font-size:9px}.slot{padding:2px}.subject{font-size:11px}.slotdetail{font-size:9px}.chip{font-size:8px;padding:2px 3px}.weeknav{width:100%;justify-content:flex-start}}
+    @media print{body{background:#fff}.app{padding:0}.topright,.weeknav,.bottom,.panel-foot{display:none}.panel{box-shadow:none;border:1px solid #ddd}.layout{height:175mm}.tablebox{padding:4px}dialog{display:none}}
+  </style>
+</head>
+<body>
+<div class="app" id="app">
+  <header class="topbar">
+    <div class="identity">
+      <div class="schoolmark" aria-hidden="true">桜</div>
+      <div><div class="schoollabel">SCHOOL INFORMATION BOARD</div><div class="schoolname"><span id="school-name">桜丘高等学校</span> <span style="color:#2a75ae" id="class-name">2年1組</span></div></div>
+    </div>
+    <div class="topright">
+      <div class="timebox"><div class="datetime" id="clock">--月--日（--） --:--</div><div class="timehint">現在の日時 / 端末の時計を使用</div></div>
+      <button type="button" class="button" id="fullscreen-btn" aria-label="全画面表示に切り替え"><svg viewBox="0 0 24 24"><path d="M8 3H4a1 1 0 0 0-1 1v4M16 3h4a1 1 0 0 1 1 1v4M3 16v4a1 1 0 0 0 1 1h4M21 16v4a1 1 0 0 1-1 1h-4"/></svg>全画面</button>
+      <button type="button" class="button primary" id="edit-btn"><svg viewBox="0 0 24 24"><path d="M12 20h9M16.5 3.5l4 4M4 20l4-.8L20.2 7a2.8 2.8 0 0 0-4-4L4 15.2 3 19z"/></svg>編集・設定</button>
+    </div>
+  </header>
+  <main class="layout">
+    <section class="panel" aria-label="週間時間割">
+      <div class="panelhead">
+        <div><div class="eyebrow">WEEKLY TIMETABLE</div><div class="paneltitle">今週の時間割</div><div class="paneldesc">行事・時間割変更もこちらで確認してください</div></div>
+        <div class="weeknav"><button class="iconbtn" id="prev-week" aria-label="前の週">‹</button><div class="weeklabel" id="week-range"></div><button class="iconbtn" id="next-week" aria-label="次の週">›</button><button class="button tiny" id="this-week">今週</button></div>
+      </div>
+      <div class="tablebox"><table class="schedule" aria-label="月曜から金曜の時間割" id="timetable"></table></div>
+      <div class="panel-foot"><div class="legend"><span class="leg"><i class="dot event"></i>学校行事・集会</span><span class="leg"><i class="dot change"></i>時間割変更</span><span class="leg"><i class="dot cancel"></i>休講</span></div><span>表示内容は研修用サンプルです</span></div>
+    </section>
+    <aside class="panel notice-panel" aria-label="連絡事項">
+      <div class="panelhead ann-head"><div><div class="eyebrow">ANNOUNCEMENTS</div><div class="paneltitle">連絡事項</div><div class="paneldesc">このクラスへのお知らせ</div></div><span class="announce-count" id="notice-count">0件</span></div>
+      <div class="ann-body" id="announcements"></div>
+      <div class="panel-foot"><span>大切なお知らせを確認しましょう</span><span id="updated">この端末で管理</span></div>
+    </aside>
+  </main>
+  <footer class="bottom"><span><strong>桜丘高等学校（架空）</strong>｜校務DX研修・動作デモ</span><span>インターネット接続不要 / データはこのブラウザ内に保存</span></footer>
+</div>
+
+<dialog id="editor" aria-labelledby="editor-title">
+  <div class="dialoginner">
+    <div class="dialoghead"><div><div class="dialogtitle" id="editor-title">掲示内容の編集</div><div class="dialogsub">教室ごとの時間割・連絡事項を管理（この端末内のみ）</div></div><button class="button silent" id="close-editor" aria-label="編集画面を閉じる">✕ 閉じる</button></div>
+    <div class="tabs" role="tablist" aria-label="編集メニュー"><button class="tab active" data-tab="schedule">時間割</button><button class="tab" data-tab="notices">連絡事項</button><button class="tab" data-tab="settings">設定・バックアップ</button></div>
+    <div class="dialogbody" id="editor-body">
+      <div id="pane-schedule">
+        <div class="editcols"><div><h3 class="sectionlabel">編集するマスを選択</h3><div class="mini-grid" id="mini-grid"></div><div class="help">この画面で変更すると、選択中のクラス・週の時間割に反映されます。特別行事は種類を「学校行事」にしてください。</div></div>
+        <div><h3 class="sectionlabel" id="slot-label">授業の編集</h3>
+          <form id="slot-form">
+            <div class="formgroup"><label for="slot-subject">科目・行事名</label><input id="slot-subject" required maxlength="36" placeholder="例：学年集会"></div>
+            <div class="formgrid"><div class="formgroup"><label for="slot-type">種類</label><select id="slot-type"><option value="regular">通常授業</option><option value="event">学校行事・集会</option><option value="change">時間割変更</option><option value="cancel">休講</option></select></div><div class="formgroup"><label for="slot-detail">場所・補足</label><input id="slot-detail" maxlength="60" placeholder="例：体育館"></div></div>
+            <div class="formgroup"><label style="display:flex;align-items:center;gap:8px;font-size:13px"><input type="checkbox" id="two-period" style="width:auto">次の時限にも同じ内容を設定する</label></div>
+            <div class="actionbar"><button class="button primary" type="submit">時間割を保存</button></div>
+          </form>
+          <div class="error" id="slot-message" role="status"></div>
+        </div></div>
+      </div>
+      <div id="pane-notices" class="hidden">
+        <div class="editcols noticecols"><div><h3 class="sectionlabel">現在の連絡事項</h3><div class="smalllist" id="notice-admin-list"></div></div>
+        <div><h3 class="sectionlabel" id="notice-edit-title">連絡を追加</h3><form id="notice-form">
+          <div class="formgroup"><label for="notice-title">見出し</label><input id="notice-title" required maxlength="50" placeholder="例：提出物について"></div>
+          <div class="formgroup"><label for="notice-content">内容</label><textarea id="notice-content" required maxlength="350" placeholder="例：金曜日までに提出してください"></textarea></div>
+          <div class="formgrid"><div class="formgroup"><label for="notice-type">種類</label><select id="notice-type"><option value="urgent">重要</option><option value="event">行事</option><option value="change">変更</option><option value="normal">一般</option></select></div><div class="formgroup"><label for="notice-date">期日・補足</label><input id="notice-date" maxlength="30" placeholder="例：10/23（金）"></div></div>
+          <div class="actionbar"><button class="button" type="button" id="notice-new">新規入力</button><button class="button primary" type="submit">連絡事項を保存</button></div>
+          <div class="error" id="notice-message" role="status"></div></form>
+        </div></div>
+      </div>
+      <div id="pane-settings" class="hidden">
+        <div class="settings-box"><h3>表示する教室</h3><div class="settingsrow"><label for="class-select">この端末に表示するクラス</label><select id="class-select"></select></div><div class="formgroup"><label for="school-input">学校名（デモ用）</label><input id="school-input" maxlength="40"></div><button class="button primary" id="save-settings">設定を保存</button></div>
+        <div class="settings-box"><h3>バックアップ・端末間での受け渡し</h3><p style="font-size:13px;line-height:1.7;color:#60778f">データは各ブラウザの端末内に保存され、別の教室へは自動反映されません。データを共有する場合は、下記の書き出し／読み込みをご利用ください。読み込むと現在のデータを置き換えます。</p><div style="display:flex;gap:9px;flex-wrap:wrap"><button class="button" id="export-json">設定・データをJSONで書き出す</button><button class="button" id="import-trigger">JSONを読み込む</button><input type="file" id="import-file" accept=".json,application/json" class="hidden"></div><div class="error" id="setting-message" role="status"></div></div>
+        <div class="help">安全性について：このデモは外部API・外部ライブラリを使用せず、外部通信を禁止する設定です。ただし、校務で本格利用する場合は学校側の規程・プログラムの安全性・運用設計について別途確認してください。生徒の氏名や成績などの実情報は入力しないでください。</div>
+      </div>
+    </div>
+  </div>
+</dialog>
+<script>
+(() => {
+ 'use strict';
+ const STORAGE_KEY='sakuragaoka-display-v1';
+ const DAYS=['月','火','水','木','金'];
+ const WEEKDAY=['日','月','火','水','木','金','土'];
+ const PERIODS=[['8:50','9:40'],['9:50','10:40'],['10:50','11:40'],['11:50','12:40'],['13:25','14:15'],['14:25','15:15']];
+ const CLASSES=['1年1組','1年2組','2年1組','2年2組','3年1組','3年2組'];
+ const TYPES={regular:'通常授業',event:'学校行事',change:'時間割変更',cancel:'休講'};
+ const NOTICE_TYPES={urgent:'重要',event:'行事',change:'変更',normal:'お知らせ'};
+ const $=id=>document.getElementById(id);
+ const deepCopy=v=>JSON.parse(JSON.stringify(v));
+ const escapeHTML=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+ const pad=n=>String(n).padStart(2,'0');
+ const ymd=d=>`${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+ const mondayOf=date=>{const d=new Date(date.getFullYear(),date.getMonth(),date.getDate());d.setDate(d.getDate()-(d.getDay()+6)%7);return d;};
+ const fromYMD=str=>{const [y,m,d]=str.split('-').map(Number);return new Date(y,m-1,d);};
+ const shiftDays=(d,n)=>{const x=new Date(d);x.setDate(x.getDate()+n);return x;};
+ function makeBaseSchedule(className){
+   const grade=Number(className[0]);
+   const base=[['現代の国語','数学','英語','体育','歴史総合'],['数学','英語','情報','現代の国語','化学'],['英語','歴史総合','数学','公共','体育'],['情報','体育','現代の国語','数学','英語'],['化学','数学','英語','総合探究','情報'],['LHR','英語','体育','数学','LHR']];
+   return base.map((row,p)=>row.map((v,d)=>({subject:grade===3&&v==='歴史総合'?'日本史探究':v,kind:'regular',detail:''})));
+ }
+ function scheduleFor(className,weekKey){
+   const key=className+'|'+weekKey;
+   if(data.schedules[key])return data.schedules[key];
+   const base=makeBaseSchedule(className);
+   // Sample special events and timetable changes for the initially displayed week.
+   if(weekKey===data.demoWeek && className.startsWith('2年')){
+     base[4][3]={subject:'学年集会',kind:'event',detail:'体育館'};
+     base[5][3]={subject:'学年集会',kind:'event',detail:'体育館'};
+     base[2][1]={subject:'英語',kind:'change',detail:'数学 → 英語'};
+     base[3][4]={subject:'避難訓練',kind:'event',detail:'グラウンド'};
+   }
+   if(weekKey===data.demoWeek && className.startsWith('1年')){
+     base[4][2]={subject:'学年集会',kind:'event',detail:'体育館'};
+   }
+   if(weekKey===data.demoWeek && className.startsWith('3年')){
+     base[4][2]={subject:'進路講演会',kind:'event',detail:'講堂'};
+   }
+   return base;
+ }
+ function starterNotices(className){
+   const second=className.startsWith('2年');
+   return [
+     {id:'demo-1',kind:'urgent',title:'提出物の確認',body:'進路希望調査票は今週金曜日までに提出してください。',when:'金曜日 締切'},
+     {id:'demo-2',kind:'event',title:second?'学年集会のお知らせ':'学年行事のお知らせ',body:second?'木曜日の5・6限に体育館で学年集会を実施します。':'今週の行事予定を時間割表で確認してください。',when:second?'木曜 5・6限':'今週'},
+     {id:'demo-3',kind:'change',title:'時間割変更について',body:second?'火曜日3限は「数学」から「英語」に変更しています。':'時間割の変更は左側の表に表示します。',when:second?'火曜 3限':'お知らせ'},
+     {id:'demo-4',kind:'normal',title:'委員会活動',body:'委員会の活動予定と集合場所は各担当教員の案内を確認してください。',when:'放課後'}
+   ];
+ }
+ function loadData(){try{const obj=JSON.parse(localStorage.getItem(STORAGE_KEY));if(obj&&obj.version===1&&typeof obj.schedules==='object'&&obj.schedules&&typeof obj.notices==='object'&&obj.notices){return obj;}}catch(e){}return {version:1,selectedClass:'2年1組',schoolName:'桜丘高等学校',demoWeek:ymd(mondayOf(new Date())),schedules:{},notices:{}};}
+ let data=loadData();
+ let currentWeek=mondayOf(new Date());
+ let selectedPeriod=0,selectedDay=0,editingNoticeId=null;
+ function persist(){try{localStorage.setItem(STORAGE_KEY,JSON.stringify(data));return true;}catch(e){console.warn('保存不可:',e);return false;}}
+ function getNotices(){if(!Array.isArray(data.notices[data.selectedClass]))data.notices[data.selectedClass]=starterNotices(data.selectedClass);return data.notices[data.selectedClass];}
+ function getSchedule(){return scheduleFor(data.selectedClass,ymd(currentWeek));}
+ function displayClock(){const d=new Date();$('clock').textContent=`${d.getMonth()+1}月${d.getDate()}日（${WEEKDAY[d.getDay()]}） ${pad(d.getHours())}:${pad(d.getMinutes())}`;}
+ function renderSchedule(){
+   const weekEnd=shiftDays(currentWeek,4),today=new Date(),todayKey=ymd(today),isThisWeek=ymd(currentWeek)===ymd(mondayOf(today));
+   $('week-range').textContent=`${currentWeek.getMonth()+1}/${currentWeek.getDate()} – ${weekEnd.getMonth()+1}/${weekEnd.getDate()}`;
+   const days=Array.from({length:5},(_,i)=>shiftDays(currentWeek,i));
+   let html='<thead><tr><th class="periodcol" scope="col">時限</th>';
+   for(let d=0;d<5;d++)html+=`<th scope="col" class="${ymd(days[d])===todayKey?'todayhead':''}">${DAYS[d]}曜日<span class="daydate">${days[d].getMonth()+1}/${days[d].getDate()}${ymd(days[d])===todayKey?' · 今日':''}</span></th>`;
+   html+='</tr></thead><tbody>';
+   const slots=getSchedule();
+   for(let p=0;p<6;p++){
+     if(p===4)html+='<tr class="lunch"><th colspan="6">昼 休 み　12:40 — 13:25</th></tr>';
+     html+=`<tr class="lesson-row"><th scope="row" class="period"><div class="periodno">${p+1}限</div><div class="periodtime">${PERIODS[p][0]}<br>— ${PERIODS[p][1]}</div></th>`;
+     for(let d=0;d<5;d++){
+       const slot=slots[p]?.[d]||{subject:'',kind:'regular',detail:''};
+       const kind=['regular','event','change','cancel'].includes(slot.kind)?slot.kind:'regular';
+       const nowMinute=today.getHours()*60+today.getMinutes();
+       const minuteOf=t=>{const [h,m]=t.split(':').map(Number);return h*60+m;};
+       const active=isThisWeek&&ymd(days[d])===todayKey&&nowMinute>=minuteOf(PERIODS[p][0])&&nowMinute<minuteOf(PERIODS[p][1]);
+       html+=`<td class="slot ${kind} ${ymd(days[d])===todayKey?'today':''} ${active?'current':''}"><div class="slot-inner">`;
+       if(kind!=='regular')html+=`<span class="chip ${kind}">${TYPES[kind]}</span>`;
+       html+=`<span class="subject">${escapeHTML(slot.subject||'—')}</span><span class="slotdetail">${escapeHTML(slot.detail||'　')}</span></div></td>`;
+     }
+     html+='</tr>';
+   }
+   html+='</tbody>';
+   $('timetable').innerHTML=html;
+ }
+ function renderNotices(){
+   const items=getNotices();
+   $('notice-count').textContent=items.length+'件';
+   if(items.length===0){$('announcements').innerHTML='<div class="empty">連絡事項はありません</div>';return;}
+   const rank={urgent:0,event:1,change:2,normal:3};
+   $('announcements').innerHTML=[...items].sort((a,b)=>(rank[a.kind]??9)-(rank[b.kind]??9)).map(n=>{
+     const k=NOTICE_TYPES[n.kind]?n.kind:'normal';
+     return `<article class="notice ${k}"><div class="noticetop"><span class="n-tag">${NOTICE_TYPES[k]}</span><span class="n-date">${escapeHTML(n.when||'')}</span></div><div class="notice-title">${escapeHTML(n.title)}</div><div class="notice-body">${escapeHTML(n.body)}</div></article>`;
+   }).join('');
+ }
+ function renderAll(){ $('school-name').textContent=data.schoolName||'桜丘高等学校';$('class-name').textContent=data.selectedClass;displayClock();renderSchedule();renderNotices(); }
+ function chooseTab(name){document.querySelectorAll('[data-tab]').forEach(el=>el.classList.toggle('active',el.dataset.tab===name));for(const n of ['schedule','notices','settings'])$('pane-'+n).classList.toggle('hidden',n!==name);if(name==='schedule')renderEditorSchedule();if(name==='notices')renderEditorNotices();if(name==='settings')renderEditorSettings();}
+ function renderEditorSchedule(){
+   const schedule=getSchedule();let html='<div class="mini-head">時限</div>';
+   for(const d of DAYS)html+=`<div class="mini-head">${d}</div>`;
+   for(let p=0;p<6;p++){
+     html+=`<div class="mini-period">${p+1}限</div>`;
+     for(let d=0;d<5;d++){
+       const v=schedule[p][d],kind=v.kind||'regular';
+       html+=`<button type="button" class="mini-cell ${kind} ${p===selectedPeriod&&d===selectedDay?'selected':''}" data-p="${p}" data-d="${d}">${escapeHTML(v.subject)}</button>`;
+     }
+   }
+   $('mini-grid').innerHTML=html;
+   $('mini-grid').querySelectorAll('.mini-cell').forEach(el=>el.addEventListener('click',()=>{selectedPeriod=Number(el.dataset.p);selectedDay=Number(el.dataset.d);renderEditorSchedule();}));
+   const curr=schedule[selectedPeriod][selectedDay];
+   $('slot-label').textContent=`${DAYS[selectedDay]}曜日 ${selectedPeriod+1}限　${data.selectedClass}`;
+   $('slot-subject').value=curr.subject||'';$('slot-type').value=TYPES[curr.kind]?curr.kind:'regular';$('slot-detail').value=curr.detail||'';$('two-period').checked=false;$('two-period').disabled=selectedPeriod===5;
+   $('slot-message').textContent='';
+ }
+ function renderEditorNotices(){
+   $('notice-admin-list').innerHTML=getNotices().length?getNotices().map(n=>`<div class="smallnotice"><div><strong>${escapeHTML(n.title)}</strong><small>${NOTICE_TYPES[n.kind]||'お知らせ'} / ${escapeHTML(n.when||'日付なし')}</small></div><div style="display:flex;gap:5px"><button type="button" class="button tiny" data-edit-notice="${escapeHTML(n.id)}">編集</button><button type="button" class="button tiny danger" data-delete-notice="${escapeHTML(n.id)}">削除</button></div></div>`).join(''):'<div class="empty">連絡事項はありません</div>';
+   $('notice-admin-list').querySelectorAll('[data-edit-notice]').forEach(el=>el.addEventListener('click',()=>loadNotice(el.dataset.editNotice)));
+   $('notice-admin-list').querySelectorAll('[data-delete-notice]').forEach(el=>el.addEventListener('click',()=>{if(confirm('この連絡事項を削除しますか？')){data.notices[data.selectedClass]=getNotices().filter(n=>n.id!==el.dataset.deleteNotice);persist();renderNotices();clearNotice();renderEditorNotices();}}));
+ }
+ function clearNotice(){editingNoticeId=null;$('notice-edit-title').textContent='連絡を追加';$('notice-form').reset();$('notice-message').textContent='';}
+ function loadNotice(id){const n=getNotices().find(n=>n.id===id);if(!n)return;editingNoticeId=id;$('notice-edit-title').textContent='連絡を編集';$('notice-title').value=n.title;$('notice-content').value=n.body;$('notice-type').value=n.kind;$('notice-date').value=n.when||'';$('notice-message').textContent='';}
+ function renderEditorSettings(){
+   $('class-select').innerHTML=CLASSES.map(c=>`<option value="${c}" ${c===data.selectedClass?'selected':''}>${c}</option>`).join('');
+   $('school-input').value=data.schoolName||'桜丘高等学校';$('setting-message').textContent='';
+ }
+ function exportData(){const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='教室掲示板_設定バックアップ.json';document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);}
+ function validateImported(obj){if(!obj||obj.version!==1||!CLASSES.includes(obj.selectedClass)||typeof obj.schoolName!=='string'||obj.schoolName.length>40||typeof obj.schedules!=='object'||!obj.schedules||typeof obj.notices!=='object'||!obj.notices||typeof obj.demoWeek!=='string')return false;
+   for(const [key,matrix] of Object.entries(obj.schedules)){if(!Array.isArray(matrix)||matrix.length!==6)return false;for(const row of matrix){if(!Array.isArray(row)||row.length!==5)return false;for(const cell of row){if(!cell||typeof cell.subject!=='string'||cell.subject.length>36||typeof cell.detail!=='string'||cell.detail.length>60||!TYPES[cell.kind])return false;}}}
+   for(const [key,arr] of Object.entries(obj.notices)){if(!Array.isArray(arr)||arr.length>50)return false;for(const n of arr){if(!n||typeof n.title!=='string'||n.title.length>50||typeof n.body!=='string'||n.body.length>350||typeof n.when!=='string'||n.when.length>30||!NOTICE_TYPES[n.kind]||typeof n.id!=='string')return false;}}
+   return true;
+ }
+ $('edit-btn').addEventListener('click',()=>{chooseTab('schedule');$('editor').showModal();});
+ $('close-editor').addEventListener('click',()=>$('editor').close());
+ $('editor').addEventListener('click',e=>{if(e.target===$('editor'))$('editor').close();});
+ document.querySelectorAll('[data-tab]').forEach(el=>el.addEventListener('click',()=>chooseTab(el.dataset.tab)));
+ $('slot-form').addEventListener('submit',e=>{e.preventDefault();const subject=$('slot-subject').value.trim(),kind=$('slot-type').value,detail=$('slot-detail').value.trim();if(!subject){$('slot-message').textContent='科目・行事名を入力してください。';return;}
+   const schedule=deepCopy(getSchedule());schedule[selectedPeriod][selectedDay]={subject,kind,detail};if($('two-period').checked&&selectedPeriod<5)schedule[selectedPeriod+1][selectedDay]={subject,kind,detail};
+   data.schedules[data.selectedClass+'|'+ymd(currentWeek)]=schedule;
+   const saved=persist();renderSchedule();renderEditorSchedule();$('slot-message').textContent=saved?'保存しました。':'画面には反映しましたが、ブラウザへの保存に失敗しました。';
+ });
+ $('notice-form').addEventListener('submit',e=>{e.preventDefault();const title=$('notice-title').value.trim(),body=$('notice-content').value.trim(),kind=$('notice-type').value,when=$('notice-date').value.trim();if(!title||!body){$('notice-message').textContent='見出しと内容を入力してください。';return;}
+   const notices=getNotices();if(editingNoticeId){const n=notices.find(n=>n.id===editingNoticeId);if(n)Object.assign(n,{title,body,kind,when});}else{if(notices.length>=50){$('notice-message').textContent='連絡事項は50件までです。';return;}notices.push({id:'n'+Date.now()+Math.random().toString(36).slice(2,6),title,body,kind,when});}
+   const saved=persist();renderNotices();clearNotice();renderEditorNotices();$('notice-message').textContent=saved?'保存しました。':'画面には反映しましたが、保存に失敗しました。';
+ });
+ $('notice-new').addEventListener('click',clearNotice);
+ $('save-settings').addEventListener('click',()=>{data.selectedClass=$('class-select').value;data.schoolName=$('school-input').value.trim()||'桜丘高等学校';persist();renderAll();renderEditorSettings();$('setting-message').textContent='表示設定を保存しました。';});
+ $('export-json').addEventListener('click',exportData);
+ $('import-trigger').addEventListener('click',()=>$('import-file').click());
+ $('import-file').addEventListener('change',async e=>{const file=e.target.files?.[0];if(!file)return;if(file.size>1000000){$('setting-message').textContent='ファイルが大きすぎます。';return;}try{const imported=JSON.parse(await file.text());if(!validateImported(imported))throw Error('形式が異なります');if(!confirm('現在の掲示板データを、読み込んだデータで置き換えますか？'))return;data=imported;persist();renderAll();renderEditorSettings();$('setting-message').textContent='読み込みが完了しました。';}catch(err){$('setting-message').textContent='読み込めませんでした。正しいバックアップファイルを選択してください。';}finally{e.target.value='';}});
+ $('prev-week').addEventListener('click',()=>{currentWeek=shiftDays(currentWeek,-7);renderSchedule();});
+ $('next-week').addEventListener('click',()=>{currentWeek=shiftDays(currentWeek,7);renderSchedule();});
+ $('this-week').addEventListener('click',()=>{currentWeek=mondayOf(new Date());renderSchedule();});
+ $('fullscreen-btn').addEventListener('click',async()=>{try{if(document.fullscreenElement)await document.exitFullscreen();else await document.documentElement.requestFullscreen();}catch(e){alert('このブラウザでは全画面表示が利用できません。F11キーをお試しください。');}});
+ renderAll();setInterval(()=>{displayClock();renderSchedule();},60000);
+})();
+</script>
+</body></html>
